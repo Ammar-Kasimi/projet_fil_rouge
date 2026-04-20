@@ -53,38 +53,7 @@ class RecipeController extends Controller
         $recipe->ingredients()->sync($pivotData);
         $recipe->load('ingredients');
 
-        $macros = [0, 0, 0, 0];
-        foreach ($recipe->ingredients as $ing) {
-            $amount = $ing->pivot->amount;
-            switch ($ing->pivot->unit) {
-                case 'g':
-                    $multiplier = 1;
-                    break;
-                case 'kg':
-                    $multiplier = 1000;
-                    break;
-                case 'ml':
-                    $multiplier = $ing->ml_to_g??1;
-                    break;
-                case 'l':
-                    $multiplier = 1000 * $ing->ml_to_g??0;
-                    break;
-                case 'piece':
-                    $multiplier =  $ing->peice_to_g;
-                    break;
-            }
-            $macros[0] += $amount * $multiplier / 100 * $ing->carbs_per_100;
-            $macros[1] += $amount * $multiplier / 100 * $ing->protein_per_100;
-            $macros[2] += $amount * $multiplier / 100 * $ing->fat_per_100;
-            $macros[3] += $amount * $multiplier / 100 * $ing->calories_per_100;
-        }
-        $recipe->carbs = $macros[0];
-        $recipe->protein = $macros[1];
-        $recipe->total_fat = $macros[2];
-        $recipe->calories = $macros[3];
-        $recipe->save();
-
-
+        $this->calculate_macros($recipe);
         return response()->json([
             'status' => 'success',
             'message' => 'Recipe created successfully',
@@ -118,13 +87,13 @@ class RecipeController extends Controller
         if (isset($validated['ingredients'])) {
             $pivotData = [];
             foreach ($validated['ingredients'] as $ingredient) {
-                $pivotData[$ingredient['id']] = ['amount' => $ingredient['amount']];
+                $pivotData[$ingredient['id']] = ['amount' => $ingredient['amount'], 'unit' => $ingredient['unit']];
             }
             $recipe->ingredients()->sync($pivotData);
+            $this->calculate_macros($recipe);
         }
 
         $recipe->load(['ingredients', 'recipeCategory']);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Recipe updated successfully',
@@ -189,5 +158,38 @@ class RecipeController extends Controller
             'message' => 'recipes fetched successfully',
             'data' => $recipes
         ]);
+    }
+    public function calculate_macros(Recipe $recipe)
+    {
+        $macros = [0, 0, 0, 0];
+        foreach ($recipe->ingredients as $ing) {
+            $amount = $ing->pivot->amount;
+            switch ($ing->pivot->unit) {
+                case 'g':
+                    $multiplier = 1;
+                    break;
+                case 'kg':
+                    $multiplier = 1000;
+                    break;
+                case 'ml':
+                    $multiplier = $ing->ml_to_g ?? 1;
+                    break;
+                case 'l':
+                    $multiplier = 1000 * ($ing->ml_to_g ?? 0);
+                    break;
+                case 'piece':
+                    $multiplier =  $ing->peice_to_g;
+                    break;
+            }
+            $macros[0] += $amount * $multiplier / 100 * $ing->carbs_per_100;
+            $macros[1] += $amount * $multiplier / 100 * $ing->protein_per_100;
+            $macros[2] += $amount * $multiplier / 100 * $ing->fat_per_100;
+            $macros[3] += $amount * $multiplier / 100 * $ing->calories_per_100;
+        }
+        $recipe->carbs = $macros[0];
+        $recipe->protein = $macros[1];
+        $recipe->total_fat = $macros[2];
+        $recipe->calories = $macros[3];
+        $recipe->save();
     }
 }
