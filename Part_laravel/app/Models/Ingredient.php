@@ -9,7 +9,13 @@ class Ingredient extends Model
     protected $fillable = [
         'name',
         'pic',
-        'ingredient_category_id'
+        'ingredient_category_id',
+        'calories_per_100',
+        'protein_per_100',
+        'carbs_per_100',
+        'fat_per_100',
+        'ml_to_g',
+        'piece_to_g'
     ];
 
     public function recipes()
@@ -22,7 +28,7 @@ class Ingredient extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'ingredient_user')
-            ->withPivot('amount')
+            ->withPivot('amount', 'unit')
             ->withTimestamps();
     }
 

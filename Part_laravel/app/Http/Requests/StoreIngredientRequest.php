@@ -24,7 +24,15 @@ class StoreIngredientRequest extends FormRequest
         return [
             'name' => 'required|string|max:191|unique:ingredients,name',
             'pic' => 'nullable|string|max:191',
-            'ingredient_category_id' => 'sometimes|integer|exists:ingredient_categories,id'
+            'ingredient_category_id' => 'sometimes|integer|exists:ingredient_categories,id',
+
+            'calories_per_100' => 'nullable|numeric|min:0',
+            'protein_per_100'  => 'nullable|numeric|min:0',
+            'carbs_per_100'    => 'nullable|numeric|min:0',
+            'fat_per_100'      => 'nullable|numeric|min:0',
+
+            'mg_to_ml'   => 'nullable|numeric|min:0',
+            'piece_to_g' => 'nullable|numeric|min:0'
         ];
     }
 }

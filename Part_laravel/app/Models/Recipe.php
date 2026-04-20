@@ -13,7 +13,11 @@ class Recipe extends Model
         'prep_time',
         'rating',
         'user_id',
-        'recipe_category_id'
+        'recipe_category_id',
+        'calories',
+        'protein',
+        'carbs',
+        'total_fat'
 
     ];
 
@@ -34,7 +38,7 @@ class Recipe extends Model
 
     public function ingredients()
     {
-        return $this->belongsToMany(Ingredient::class, 'ingredient')
+        return $this->belongsToMany(Ingredient::class, 'ingredient_recipe')
             ->withPivot('amount')
             ->withTimestamps();
     }

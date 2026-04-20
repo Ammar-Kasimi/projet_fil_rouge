@@ -27,8 +27,10 @@ class StoreRecipeRequest extends FormRequest
             'difficulty' => 'nullable|in:beginner,medium,advanced,chef',
             'prep_time' => 'required|integer|min:1',
             'ingredients.*.id' => 'required|exists:ingredients,id',
-            'ingredients.*.amount' => 'required|string|max:191',
-            'recipe_category_id' => 'sometimes|integer|exists:recipe_categories,id'
+            'ingredients.*.amount' => 'required|numeric|min:0',
+            'ingredients.*.unit' => 'required|in:g,kg,l,ml,piece|string',
+            'recipe_category_id' => 'sometimes|nullable|integer|exists:recipe_categories,id',
+            'ingredients' => 'required|array|min:1'
         ];
     }
 }

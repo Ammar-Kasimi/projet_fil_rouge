@@ -20,6 +20,12 @@ return new class extends Migration
             $table->integer('prep_time');
             $table->float('rating')->nullable();
             $table->foreignId('recipe_category_id')->nullable()->constrained();
+
+            $table->float('calories')->nullable();
+            $table->float('total_fat')->nullable();
+            $table->float('protein')->nullable();
+            $table->float('carbs')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

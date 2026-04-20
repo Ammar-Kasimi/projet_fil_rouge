@@ -11,11 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ingrediants', function (Blueprint $table) {
+        Schema::create('ingredients', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('pic')->nullable();
             $table->foreignId('ingredient_category_id')->nullable()->constrained();
+
+            $table->float('carbs_per_100')->default(0);
+            $table->float('calories_per_100')->default(0);
+            $table->float('protein_per_100')->default(0);
+            $table->float('fat_per_100')->default(0);
+
+            $table->float('ml_to_g')->nullable();
+            $table->float('piece_to_g')->nullable();
+
+            
             $table->softDeletes();
             $table->timestamps();
         });
