@@ -92,5 +92,18 @@ class UserController extends Controller
     //BMR:Basal Metabolic Rate
     //TDEE:Total Daily Energy Expenditure
     //TDEE 3adatan =BMR*1.2;
-    d
+    public function calculate_daily_macros(User $user){
+        $bmr=(10 * $user->weight) + (6.25 * $user->height) - (5 * $user->age);
+        if($user->gender=='male'){
+            $bmr+=5;
+        }else{
+            $bmr-=161;
+        }
+        $TDEE=$bmr*1.2;
+        $user->update([
+            'target_calories' => round($TDEE),
+            'target_protein'  => round(($TDEE * 0.3) / 4),
+            'target_carbs'    => round(($TDEE * 0.4) / 4),
+            'target_fat'      => round(($TDEE * 0.3) / 9)]);
+    }
 }
