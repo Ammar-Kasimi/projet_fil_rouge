@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('amount'); 
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('ingrediant_id')->constrained('ingrediants')->cascadeOnDelete();
+            $table->foreignId('ingredient_id')->constrained('ingredients')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateUserDetailsRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -84,4 +85,12 @@ class UserController extends Controller
             'message' => 'Account deactivated successfully'
         ]);
     }
+    public function updateUserDetails(UpdateUserDetailsRequest $request){
+     $request->user()->update($request->validated);
+
+    }
+    //BMR:Basal Metabolic Rate
+    //TDEE:Total Daily Energy Expenditure
+    //TDEE 3adatan =BMR*1.2;
+    d
 }

@@ -38,6 +38,10 @@ class User extends Authenticatable
             ->withPivot('amount')
             ->withTimestamps();
     }
+    public function meals()
+    {
+        return $this->hasMany(Meal::class);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -50,7 +54,15 @@ class User extends Authenticatable
         'email',
         'password',
         'isActive',
-        'role_id'
+        'role_id',
+        'gender',
+        'weight',
+        'height',
+        'age',
+        'target_calories',
+        'target_protein',
+        'target_carbs',
+        'target_fat'
 
     ];
 
@@ -76,4 +88,4 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-}
+ }

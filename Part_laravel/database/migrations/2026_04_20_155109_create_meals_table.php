@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ingredient_recipe', function (Blueprint $table) {
+        Schema::create('meals', function (Blueprint $table) {
             $table->id();
-            $table->string('amount');
-            $table->enum('unit',['g','kg','ml','l','piece']);
-            $table->foreignId('recipe_id')->constrained('recipes')->cascadeOnDelete();
-            $table->foreignId('ingredient_id')->constrained('ingredients')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('recipe_id')->constrained();
+
+            $table->integer('calories');
+            $table->integer('protein');
+            $table->integer('carbs');
+            $table->integer('fat');
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ingredient_recipe');
+        Schema::dropIfExists('meals');
     }
 };
