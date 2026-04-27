@@ -85,25 +85,53 @@ class UserController extends Controller
             'message' => 'Account deactivated successfully'
         ]);
     }
-    public function updateUserDetails(UpdateUserDetailsRequest $request){
-     $request->user()->update($request->validated);
-
+    public function updateUserDetails(UpdateUserDetailsRequest $request)
+    {
+        $user = $request->user();
+        $user->update($request->validated());
+        $this->calculate_daily_macros($user);
+        $user->refresh();
+        //mam2kdch wach y7taj ndir liha refresh() wlla la fa drtha o safi
+        return response()->json([
+            'status' => 'success',
+            'message' => 'user details updated successfully',
+            'data' => $user
+        ]);
     }
     //BMR:Basal Metabolic Rate
     //TDEE:Total Daily Energy Expenditure
     //TDEE 3adatan =BMR*1.2;
-    public function calculate_daily_macros(User $user){
-        $bmr=(10 * $user->weight) + (6.25 * $user->height) - (5 * $user->age);
-        if($user->gender=='male'){
-            $bmr+=5;
-        }else{
-            $bmr-=161;
+    public function calculate_daily_macros(User $user)
+    {
+        $bmr = (10 * $user->weight) + (6.25 * $user->height) - (5 * $user->age);
+        if ($user->gender == 'male') {
+            $bmr += 5;
+        } else {
+            $bmr -= 161;
         }
-        $TDEE=$bmr*1.2;
+        $TDEE = $bmr * 1.2;
         $user->update([
             'target_calories' => round($TDEE),
             'target_protein'  => round(($TDEE * 0.3) / 4),
             'target_carbs'    => round(($TDEE * 0.4) / 4),
-            'target_fat'      => round(($TDEE * 0.3) / 9)]);
+            'target_fat'      => round(($TDEE * 0.3) / 9)
+        ]);
     }
+
+    // public function calculate_daily_macros2(){
+    //     $bmr=(10 * $this->weight) + (6.25 * $this->height) - (5 * $this->age);
+    //     if($this->gender=='male'){
+    //         $bmr+=5;
+    //     }else{
+    //         $bmr-=161;
+    //     }
+    //     $TDEE=$bmr*1.2;
+
+    //         $this->target_calories = round($TDEE);
+    // $this->target_protein = round(($TDEE * 0.3) / 4);
+    // $this->target_carbs = round(($TDEE * 0.4) / 4);
+    // $this->target_fat = round(($TDEE * 0.3) / 9);
+
+    // $this->save();
+    // }
 }

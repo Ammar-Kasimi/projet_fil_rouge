@@ -22,10 +22,10 @@ class UpdateUserDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'age' => 'nullable|integer|min:8',
-            'gender' => 'nullable|in:male,female',
-            'weight' => 'nullable|numeric|min:20',
-            'height' => 'nullable|numeric|min:40'
+            'age' => 'required|integer|min:8',
+            'gender' => 'required|in:male,female',
+            'weight' => 'required|numeric|min:20',
+            'height' => 'required|numeric|min:40'
         ];
     }
 }

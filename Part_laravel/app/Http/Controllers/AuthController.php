@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -71,7 +72,8 @@ class AuthController extends Controller
         $validated = $request->validated();
 
         if (User::count() === 0) {
-            $validated['role_id'] = 1;
+            $role_id = Role::where('name','admin')->get();
+            $validated['role_id'] = $role_id;
         } else {
             $validated['role_id'] = 2;
         }
