@@ -24,7 +24,15 @@ class UpdateIngredientRequest extends FormRequest
         return [
             'name' => 'sometimes|string|min:1|max:35|unique:ingredients,name,' . $this->ingredient->id,
             'pic' => 'sometimes|string|min:1',
-            'ingredient_category_id' => 'sometimes|integer|exists:ingredient_categories,id'
+            'ingredient_category_id' => 'sometimes|integer|exists:ingredient_categories,id',
+
+            'calories_per_100' => 'sometimes|numeric|min:0',
+            'protein_per_100'  => 'sometimes|numeric|min:0',
+            'carbs_per_100'    => 'sometimes|numeric|min:0',
+            'fat_per_100'      => 'sometimes|numeric|min:0',
+
+            'ml_to_g'   => 'nullable|numeric|min:0',
+            'piece_to_g' => 'nullable|numeric|min:0'
         ];
     }
 }

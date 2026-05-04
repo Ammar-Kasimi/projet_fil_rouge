@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class StoreMealRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,11 +20,9 @@ class RegisterRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-{
-    return [
-        'username' => 'required|string|max:25',
-        'email' => 'required|string|email|max:40|unique:users,email',
-        'password' => 'required|string|min:4'
-    ];
-}
+    {
+        return [
+            'recipe_id' => 'required|exists:recipes,id'
+        ];
+    }
 }

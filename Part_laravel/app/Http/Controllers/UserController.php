@@ -28,7 +28,7 @@ class UserController extends Controller
             'data' => $users
         ]);
     }
-    public function show_offers()
+    public function show_chefs()
     {
         $chefs = User::has('recipes')->withCount('recipes')->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating')->paginate(10);
 

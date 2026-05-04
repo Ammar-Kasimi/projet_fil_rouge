@@ -35,11 +35,15 @@ class Recipe extends Model
     {
         return $this->hasMany(Review::class);
     }
+    public function meals()
+    {
+        return $this->hasMany(Meal::class);
+    }
 
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class, 'ingredient_recipe')
-            ->withPivot('amount')
+            ->withPivot('amount','unit')
             ->withTimestamps();
     }
 

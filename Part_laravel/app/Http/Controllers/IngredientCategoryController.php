@@ -14,7 +14,8 @@ class IngredientCategoryController extends Controller
 
     public function index()
     {
-        $categories = IngredientCategory::all();
+        $categories = IngredientCategory::with('ingredients')->get();
+
 
         return response()->json([
             'status' => 'success',

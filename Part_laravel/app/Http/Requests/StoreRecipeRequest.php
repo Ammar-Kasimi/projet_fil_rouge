@@ -30,7 +30,9 @@ class StoreRecipeRequest extends FormRequest
             'ingredients.*.amount' => 'required|numeric|min:0',
             'ingredients.*.unit' => 'required|in:g,kg,l,ml,piece|string',
             'recipe_category_id' => 'sometimes|nullable|integer|exists:recipe_categories,id',
-            'ingredients' => 'required|array|min:1'
+            'ingredients' => 'required|array|min:1',
+            'instructions' => 'nullable|array|min:1',
+            'instructions.*.desc' => 'required_with:instructions|string'
         ];
     }
 }

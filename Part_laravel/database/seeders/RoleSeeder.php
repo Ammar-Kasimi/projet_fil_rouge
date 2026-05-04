@@ -15,6 +15,6 @@ class RoleSeeder extends Seeder
     {
         Role::firstOrCreate(['id'=>1],['name'=>'admin']);
         Role::firstOrCreate(['id'=>2],['name'=>'user']);
-        $this->call([RoleSeeder::class]);
+        
     }
 }

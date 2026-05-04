@@ -32,8 +32,12 @@ class IngredientController extends Controller
     public function store(StoreIngredientRequest $request)
     {
         $validated = $request->validated();
-        $ing = Ingredient::create($validated);
 
+        if ($request->hasFile('pic')) {
+            $path = $request->file('pic')->store('ingredients', 'public');
+            $validated['pic'] = $path;
+        }
+        $ing = Ingredient::create($validated);
         return response()->json([
             'status' => 'success',
             'message' => "Ingredient {$ing->name} created successfully",
@@ -61,7 +65,7 @@ class IngredientController extends Controller
     public function update(UpdateIngredientRequest $request, Ingredient $ingredient)
     {
         $ingredient->update($request->validated());
-
+        $ingredient->load('ingredientCategory');
         return response()->json([
             'status' => 'success',
             'message' => 'Ingredient updated successfully',

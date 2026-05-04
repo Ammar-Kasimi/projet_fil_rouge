@@ -90,7 +90,17 @@ class RecipeController extends Controller
                 $pivotData[$ingredient['id']] = ['amount' => $ingredient['amount'], 'unit' => $ingredient['unit']];
             }
             $recipe->ingredients()->sync($pivotData);
+            $recipe->load('ingredients'); 
             $this->calculate_macros($recipe);
+        }
+
+        if (isset($request->instructions)) {
+            $recipe->instructions()->delete();
+            $instructionData = [];
+            foreach ($request->instructions as $instruction) {
+                $instructionData[] = ['desc' => $instruction['desc']];
+            }
+            $recipe->instructions()->createMany($instructionData);
         }
 
         $recipe->load(['ingredients', 'recipeCategory']);
@@ -113,6 +123,30 @@ class RecipeController extends Controller
             'message' => 'Recipe deleted  successfully'
         ]);
     }
+    public function myRecipes(Request $request)
+    {
+        $userId = $request->user()->id;
+
+        $recipes = Recipe::with(['recipeCategory', 'user', 'ingredients'])->withAvg('reviews', 'rating')->where('user_id', $userId)->latest()->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User Recipes fetched successfully',
+            'data' => $recipes
+        ]);
+    }
+    public function searchCoordinator(Request $request)
+{
+    $request->validate([
+        'ingredients' => 'required|array',
+        'mode' => 'required|string|in:specific,strict'
+    ]);
+    if ($request->mode == 'strict') {
+        return $this->strict_search($request);
+    } else {
+        return $this->searchByIngredients($request);
+    }
+}
     public function searchByIngredients(Request $request)
     {
         $ings = $request->ingredients;
@@ -127,8 +161,8 @@ class RecipeController extends Controller
         $recipes = Recipe::whereHas('ingredients', function ($query) use ($ings) {
             //     $query->whereIn('id', $ings);
             // })->withAvg('reviews', 'rating')->paginate(12);
-            $query->whereIn('ingrediants.id', $ings);
-        }, '=', count($ings))->withAvg('reviews', 'rating')->paginate(20);
+            $query->whereIn('ingredients.id', $ings);
+        }, '=', count($ings))->withAvg('reviews', 'rating')/*->paginate(20)*/->get();
         return response()->json([
             'status' => 'success',
             'message' => 'recipes fetched successfully',
@@ -150,8 +184,8 @@ class RecipeController extends Controller
         $spiceCatId = IngredientCategory::where('name', 'Spices')->value('id');
 
         $recipes = Recipe::whereDoesntHave('ingredients', function ($query) use ($ings, $spiceCatId) {
-            $query->whereNotIn('ingredient.id', $ings)->where('ingredient_category_id', '!=', $spiceCatId);
-        })->withAvg('reviews', 'rating')->paginate(20);
+            $query->whereNotIn('ingredients.id', $ings)->where('ingredient_category_id', '!=', $spiceCatId);
+        })->withAvg('reviews', 'rating')/*->paginate(20)*/->get();
 
         return response()->json([
             'status' => 'success',
@@ -163,6 +197,8 @@ class RecipeController extends Controller
     {
         $macros = [0, 0, 0, 0];
         foreach ($recipe->ingredients as $ing) {
+        $multiplier = 1;
+
             $amount = $ing->pivot->amount;
             switch ($ing->pivot->unit) {
                 case 'g':
@@ -178,7 +214,7 @@ class RecipeController extends Controller
                     $multiplier = 1000 * ($ing->ml_to_g ?? 0);
                     break;
                 case 'piece':
-                    $multiplier =  $ing->peice_to_g;
+                    $multiplier =  $ing->piece_to_g;
                     break;
             }
             $macros[0] += $amount * $multiplier / 100 * $ing->carbs_per_100;

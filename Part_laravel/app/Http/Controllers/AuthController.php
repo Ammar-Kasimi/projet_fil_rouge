@@ -67,61 +67,117 @@ class AuthController extends Controller
     //     return redirect()->route('dashboard');
     // }
 
+    // public function register(RegisterRequest $request)
+    // {
+    //     $validated = $request->validated();
+
+    //     if (User::count() === 0) {
+    //         $role_id = Role::where('name', 'admin')->value('id');
+    //         $validated['role_id'] = $role_id;
+    //     } else {
+    //         $validated['role_id'] = Role::where('name', 'user')->value('id');
+    //     }
+
+    //     $validated['isActive'] = true;
+
+    //     $user = User::create($validated);
+
+
+    //     $token = $user->createToken("api_token")->plainTextToken;
+
+    //     return response()->json([
+    //         "status" => "success",
+    //         "message" => "User created successfully",
+    //         "data" => [
+    //             "user_data" => $user,
+    //             "token_type" => "Bearer",
+    //             "access_token" => $token
+    //         ]
+    //     ], 201);
+    // }
+
+
+
     public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
 
         if (User::count() === 0) {
-            $role_id = Role::where('name','admin')->get();
+            $role_id = Role::where('name', 'admin')->value('id');
             $validated['role_id'] = $role_id;
         } else {
-            $validated['role_id'] = 2;
+            $validated['role_id'] = Role::where('name', 'user')->value('id');
         }
 
         $validated['isActive'] = true;
 
-        $user = DB::transaction(function () use ($validated) {
-            return User::create($validated);
-        });
-
-        $token = $user->createToken("api_token")->plainTextToken;
-
+        $user = User::create($validated);
+        Auth::login($user);
+        $request->session()->regenerate();
         return response()->json([
             "status" => "success",
             "message" => "User created successfully",
-            "data" => [
-                "user_data" => $user,
-                "token_type" => "Bearer",
-                "access_token" => $token
-            ]
+            "data" => $user
         ], 201);
     }
+    // public function login(LoginRequest $request)
+    // {
+    //     $creds = $request->validated();
+
+    //     if (!Auth::attempt($creds)) {
+    //         return response()->json([
+    //             "status" => "failed",
+    //             "message" => "The email or password is wrong"
+    //         ], 401);
+    //     }
+
+    //     $user = $request->user()->load('role');
+    //     $token = $user->createToken("api_token")->plainTextToken;
+
+    //     return response()->json([
+    //         "status" => "success",
+    //         "message" => "User logged in successfully",
+    //         "data" => [
+    //             "user_data" => $user,
+    //             "access_token" => $token
+    //         ]
+    //     ], 200);
+    // }
+
     public function login(LoginRequest $request)
     {
         $creds = $request->validated();
 
-        if (!Auth::attempt($creds)) {
+        if (Auth::attempt($creds)) {
+            $request->session()->regenerate();
+            $user = Auth::user()->load('role');
+            return response()->json([
+                "status" => "success",
+                "message" => "User logged in successfully",
+                "data" => $user
+            ], 200);
+        }
+       
             return response()->json([
                 "status" => "failed",
                 "message" => "The email or password is wrong"
             ], 401);
-        }
-
-        $user = $request->user()->load('role');
-        $token = $user->createToken("api_token")->plainTextToken;
-
-        return response()->json([
-            "status" => "success",
-            "message" => "User logged in successfully",
-            "data" => [
-                "user_data" => $user,
-                "access_token" => $token
-            ]
-        ], 200);
     }
+    // public function logout(Request $request)
+    // {
+    //     $request->user()->currentAccessToken()->delete();
+
+    //     return response()->json([
+    //         "status" => "success",
+    //         "message" => "User logged out successfully"
+    //     ], 200);
+    // }
+
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             "status" => "success",
